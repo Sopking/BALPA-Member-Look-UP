@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BALPA Data Update</title>
+<style>
+  :root {
+    --balpa-blue: #003366;
+    --balpa-light: #e8f0fe;
+    --balpa-accent: #0066cc;
+    --border: #d0d5dd;
+    --bg: #f8f9fa;
+    --white: #ffffff;
+    --text: #1a1a2e;
+    --text-muted: #667085;
+    --success: #12b76a;
+    --error: #f04438;
+    --radius: 8px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .header { background: var(--balpa-blue); color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .header h1 { font-size: 20px; font-weight: 600; }
+  .back-link { font-size: 12px; color: rgba(255,255,255,0.7); text-decoration: none; border: 1px solid rgba(255,255,255,0.3); padding: 4px 10px; border-radius: 4px; }
+  .back-link:hover { color: white; border-color: white; }
+
+  .container { max-width: 600px; margin: 40px auto; padding: 20px; }
+
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+  .card-header { background: var(--balpa-blue); color: white; padding: 20px 28px; }
+  .card-header h2 { font-size: 18px; margin-bottom: 4px; }
+  .card-header p { font-size: 13px; opacity: 0.8; }
+  .card-body { padding: 28px; }
+
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .form-group .hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .form-group input[type="password"], .form-group input[type="text"] {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; outline: none;
+  }
+  .form-group input:focus { border-color: var(--balpa-accent); box-shadow: 0 0 0 3px rgba(0,102,204,0.1); }
+
+  .drop-zone {
+    border: 2px dashed var(--border); border-radius: 8px; padding: 40px 20px;
+    text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg);
+  }
+  .drop-zone:hover, .drop-zone.dragover { border-color: var(--balpa-accent); background: var(--balpa-light); }
+  .drop-zone.has-file { border-color: var(--success); background: #f0fdf4; }
+  .drop-zone .icon { font-size: 32px; margin-bottom: 12px; }
+  .drop-zone h3 { font-size: 16px; color: var(--balpa-blue); margin-bottom: 6px; }
+  .drop-zone p { font-size: 13px; color: var(--text-muted); }
+  .drop-zone .file-name { font-size: 14px; font-weight: 600; color: #067647; margin-top: 8px; }
+  .drop-zone input[type="file"] { display: none; }
+
+  .submit-btn {
+    width: 100%; padding: 14px; background: var(--balpa-accent); color: white;
+    border: none; border-radius: 8px; font-size: 16px; font-weight: 600;
+    cursor: pointer; transition: opacity 0.2s; margin-top: 8px;
+  }
+  .submit-btn:hover:not(:disabled) { opacity: 0.9; }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .progress { display: none; margin-top: 20px; }
+  .progress.visible { display: block; }
+  .progress-bar-wrap { background: #e5e7eb; border-radius: 99px; height: 8px; overflow: hidden; margin: 8px 0; }
+  .progress-bar { height: 100%; background: var(--balpa-accent); border-radius: 99px; width: 0; transition: width 0.3s; }
+  .progress-msg { font-size: 13px; color: var(--text-muted); }
+
+  .result { display: none; margin-top: 20px; padding: 16px 20px; border-radius: 8px; }
+  .result.visible { display: block; }
+  .result.success { background: #ecfdf3; border: 1px solid #abefc6; color: #067647; }
+  .result.error { background: #fef3f2; border: 1px solid #fecdca; color: #b42318; }
+  .result h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .result p { font-size: 13px; }
+
+  .setup-note { background: #fffaeb; border: 1px solid #f9d67c; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; font-size: 13px; color: #7a4f00; }
+  .setup-note strong { display: block; margin-bottom: 4px; font-size: 14px; }
+  .setup-note a { color: #0066cc; }
+
+  .token-row { display: flex; gap: 8px; }
+  .token-row input { flex: 1; }
+  .clear-token { padding: 10px 14px; background: none; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; cursor: pointer; color: var(--text-muted); white-space: nowrap; }
+  .clear-token:hover { border-color: var(--error); color: var(--error); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>BALPA easyJet &mdash; Data Update</h1>
+  <a href="index.html" class="back-link">&#8592; Back to Member Search</a>
+</div>
+
+<div class="container">
+
+  <div class="setup-note" id="setupNote" style="display:none;">
+    <strong>&#9888; First-time setup required</strong>
+    A GitHub access token is needed to update the member data. Enter the token below — it will be saved in your browser so you only need to do this once.
+    <br><br>Ask your site administrator for the upload token, or <a href="https://github.com/settings/tokens/new?scopes=repo&description=BALPA+Member+Data+Upload" target="_blank">create one here</a> (needs <strong>repo</strong> scope).
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>&#8593; Upload New Member Spreadsheet</h2>
+      <p>Upload the latest BALPA DATA.xlsx from BALPA HQ. The member search will update immediately.</p>
+    </div>
+    <div class="card-body">
+
+      <div class="form-group" id="tokenGroup">
+        <label>GitHub Access Token</label>
+        <div class="token-row">
+          <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+          <button class="clear-token" onclick="clearToken()">Clear</button>
+        </div>
+        <p class="hint">Saved in your browser. Only needs to be entered once.</p>
+      </div>
+
+      <div class="form-group">
+        <label>Spreadsheet File</label>
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+          <div class="icon">&#128190;</div>
+          <h3>Drop file here or click to browse</h3>
+          <p>Accepts .xlsx or .xls files</p>
+          <p class="file-name" id="fileName"></p>
+          <input type="file" id="fileInput" accept=".xlsx,.xls">
+        </div>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="uploadFile()" disabled>
+        Upload &amp; Update Member Data
+      </button>
+
+      <div class="progress" id="progress">
+        <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+        <p class="progress-msg" id="progressMsg">Preparing upload&hellip;</p>
+      </div>
+
+      <div class="result" id="result"></div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+const GITHUB_OWNER = 'Sopking';
+const GITHUB_REPO  = 'BALPA-Member-Look-UP';
+const GITHUB_FILE  = 'BALPA DATA.xlsx';
+const GITHUB_BRANCH = 'main';
+
+let selectedFile = null;
+
+// ── Token management ──
+function loadToken() {
+  const t = localStorage.getItem('balpa_gh_token');
+  if (t) {
+    document.getElementById('tokenInput').value = t;
+  } else {
+    document.getElementById('setupNote').style.display = 'block';
+  }
+}
+
+function clearToken() {
+  localStorage.removeItem('balpa_gh_token');
+  document.getElementById('tokenInput').value = '';
+  document.getElementById('setupNote').style.display = 'block';
+}
+
+document.getElementById('tokenInput').addEventListener('input', () => {
+  const val = document.getElementById('tokenInput').value.trim();
+  if (val) localStorage.setItem('balpa_gh_token', val);
+  checkReady();
+});
+
+// ── File picker ──
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+fileInput.addEventListener('change', e => { if (e.target.files.length) setFile(e.target.files[0]); });
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+});
+
+function setFile(file) {
+  if (!file.name.match(/\.(xlsx|xls)$/i)) {
+    showResult('error', 'Invalid file', 'Please select an Excel file (.xlsx or .xls).');
+    return;
+  }
+  selectedFile = file;
+  dropZone.classList.add('has-file');
+  document.getElementById('fileName').textContent = '✓ ' + file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+  checkReady();
+}
+
+function checkReady() {
+  const token = document.getElementById('tokenInput').value.trim();
+  document.getElementById('submitBtn').disabled = !(token && selectedFile);
+}
+
+// ── Upload via GitHub API ──
+async function uploadFile() {
+  const token = document.getElementById('tokenInput').value.trim();
+  if (!token || !selectedFile) return;
+
+  setProgress(true, 10, 'Reading file…');
+  clearResult();
+
+  try {
+    // Read file as base64
+    const base64 = await toBase64(selectedFile);
+    setProgress(true, 30, 'Connecting to GitHub…');
+
+    // Get current file SHA (needed to update existing file)
+    let sha = null;
+    try {
+      const getRes = await fetch(
+        `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${encodeURIComponent(GITHUB_FILE)}`,
+        { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' } }
+      );
+      if (getRes.ok) {
+        const data = await getRes.json();
+        sha = data.sha;
+      }
+    } catch(e) { /* file may not exist yet, that's fine */ }
+
+    setProgress(true, 60, 'Uploading spreadsheet…');
+
+    // Commit new file
+    const now = new Date();
+    const body = {
+      message: 'Update member data ' + now.toISOString().split('T')[0],
+      content: base64,
+      branch: GITHUB_BRANCH
+    };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${encodeURIComponent(GITHUB_FILE)}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      }
+    );
+
+    setProgress(true, 90, 'Finalising…');
+
+    if (!putRes.ok) {
+      const err = await putRes.json();
+      throw new Error(err.message || 'Upload failed (HTTP ' + putRes.status + ')');
+    }
+
+    setProgress(true, 100, 'Done!');
+    setTimeout(() => setProgress(false), 1000);
+
+    showResult('success',
+      '&#10003; Member data updated successfully',
+      'The spreadsheet has been published. The Member Search app will load the new data automatically from now on.'
+    );
+
+    // Reset file
+    selectedFile = null;
+    dropZone.classList.remove('has-file');
+    document.getElementById('fileName').textContent = '';
+    document.getElementById('submitBtn').disabled = true;
+    fileInput.value = '';
+
+  } catch(err) {
+    setProgress(false);
+    showResult('error', 'Upload failed', err.message);
+  }
+}
+
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const b64 = btoa(String.fromCharCode(...new Uint8Array(e.target.result)));
+      resolve(b64);
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function setProgress(visible, pct, msg) {
+  const el = document.getElementById('progress');
+  el.classList.toggle('visible', visible);
+  if (pct !== undefined) document.getElementById('progressBar').style.width = pct + '%';
+  if (msg) document.getElementById('progressMsg').textContent = msg;
+}
+
+function showResult(type, title, msg) {
+  const el = document.getElementById('result');
+  el.className = 'result visible ' + type;
+  el.innerHTML = '<h3>' + title + '</h3><p>' + msg + '</p>';
+}
+
+function clearResult() {
+  const el = document.getElementById('result');
+  el.className = 'result';
+  el.innerHTML = '';
+}
+
+loadToken();
+</script>
+</body>
+</html>
