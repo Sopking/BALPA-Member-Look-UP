@@ -125,10 +125,28 @@
   .toast { position: fixed; bottom: 24px; right: 24px; background: #333; color: white; padding: 10px 20px; border-radius: 8px; font-size: 14px; z-index: 200; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
   .toast.show { opacity: 1; transform: translateY(0); }
 
-  @media (max-width: 768px) {
-    .container { padding: 12px; }
-    .search-row { flex-direction: column; }
-    .header { flex-direction: column; align-items: flex-start; }
+  @media (max-width: 700px) {
+    .container { padding: 10px; }
+    .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .header-right { width: 100%; justify-content: space-between; }
+    .header-info { gap: 10px; }
+    .loaded-banner { flex-direction: column; align-items: flex-start; gap: 6px; }
+    /* Switch search row to a 2-column grid so filters sit side by side */
+    .search-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    /* Search input spans full width */
+    .search-field { grid-column: 1 / -1; min-width: 0; }
+    /* Each filter takes one grid cell */
+    .filter-field { min-width: 0; }
+    /* Table text slightly smaller on mobile */
+    table { font-size: 13px; }
+    td, th { padding: 8px 10px; }
+    /* Member card full screen on mobile */
+    .modal { padding: 10px; }
+    .member-card { max-width: 100%; }
   }
 </style>
 </head>
