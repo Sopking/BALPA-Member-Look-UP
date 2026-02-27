@@ -394,26 +394,30 @@ function parseWorkbook(buffer, sourceName) {
   } catch(err) { showToast('Error reading file: '+err.message); console.error(err); }
 }
 
+let _diagHeaders = [];
 function showColDiag(headers, colMap, missing) {
-  // Show a diagnostic panel so we can see what the spreadsheet calls its columns
-  const panel = document.getElementById('colDiagPanel') || (() => {
-    const d = document.createElement('div');
-    d.id = 'colDiagPanel';
-    d.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;border:2px solid #c00;border-radius:12px;padding:24px;max-width:560px;width:92vw;z-index:9999;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-height:80vh;overflow-y:auto;';
-    document.body.appendChild(d);
-    return d;
-  })();
+  _diagHeaders = headers;
+  let panel = document.getElementById('colDiagPanel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'colDiagPanel';
+    panel.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;border:2px solid #c00;border-radius:12px;padding:24px;max-width:560px;width:92vw;z-index:9999;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-height:80vh;overflow-y:auto;';
+    document.body.appendChild(panel);
+  }
   panel.innerHTML = `
-    <h3 style="color:#c00;margin-bottom:8px;">⚠ Column Names Not Recognised</h3>
-    <p style="font-size:13px;color:#555;margin-bottom:14px;">The app couldn't match the spreadsheet's column headers. Here are the <strong>actual column names</strong> found in the file — please send this list to whoever set up the app so they can fix the mapping:</p>
-    <div style="background:#f5f5f5;border-radius:6px;padding:12px;font-family:monospace;font-size:12px;line-height:1.8;word-break:break-all;">
-      ${headers.map((h,i) => `<div><strong>${i+1}.</strong> "${h}"</div>`).join('')}
+    <h3 style="color:#c00;margin-bottom:8px;">&#9888; Wrong File?</h3>
+    <p style="font-size:13px;color:#555;margin-bottom:14px;">The app couldn't match this spreadsheet's column headers to the expected BALPA member data format. The column names found in the file were:</p>
+    <div style="background:#f5f5f5;border-radius:6px;padding:12px;font-family:monospace;font-size:12px;line-height:1.8;word-break:break-all;" id="colDiagList">
+      ${headers.map((h,i) => `<div><strong>${i+1}.</strong> "${String(h).replace(/</g,'&lt;')}"</div>`).join('')}
     </div>
-    <p style="font-size:12px;color:#888;margin-top:10px;">You can also open the browser console (F12 → Console) to see this list.</p>
+    <p style="font-size:12px;color:#888;margin-top:10px;">If this looks like the wrong file, please re-upload the correct BALPA member spreadsheet. If these are the correct column names, please share them so the app can be updated to match.</p>
     <div style="display:flex;gap:10px;margin-top:16px;">
       <button onclick="document.getElementById('colDiagPanel').remove()" style="padding:8px 18px;background:#003366;color:white;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Close</button>
-      <button onclick="navigator.clipboard.writeText(${JSON.stringify(headers.join(', '))}).then(()=>showToast('Column names copied!'))" style="padding:8px 18px;background:#f0f0f0;color:#333;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:14px;">Copy Column Names</button>
+      <button onclick="copyDiagHeaders()" style="padding:8px 18px;background:#f0f0f0;color:#333;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:14px;">Copy Column Names</button>
     </div>`;
+}
+function copyDiagHeaders() {
+  navigator.clipboard.writeText(_diagHeaders.join(', ')).then(() => showToast('Column names copied!'));
 }
 
 function onDataLoaded(source) {
