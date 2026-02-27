@@ -359,7 +359,9 @@ function detectColMap(headers) {
 function parseWorkbook(buffer, sourceName) {
   try {
     const wb = XLSX.read(buffer, {type:'array'});
-    const ws = wb.Sheets[wb.SheetNames[0]];
+    // Prefer a sheet named 'DATA' (the IMMS report format) — fall back to first sheet
+    const wsName = wb.SheetNames.find(n => n.trim().toUpperCase() === 'DATA') || wb.SheetNames[0];
+    const ws = wb.Sheets[wsName];
     const json = XLSX.utils.sheet_to_json(ws, {defval:''});
     if (!json.length) { showToast('Spreadsheet appears to be empty.'); return; }
 
