@@ -125,6 +125,19 @@
   .toast { position: fixed; bottom: 24px; right: 24px; background: #333; color: white; padding: 10px 20px; border-radius: 8px; font-size: 14px; z-index: 200; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
   .toast.show { opacity: 1; transform: translateY(0); }
 
+  /* Password gate */
+  .gate { position: fixed; inset: 0; background: var(--balpa-blue); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
+  .gate-box { background: white; border-radius: 12px; padding: 36px 32px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 24px 64px rgba(0,0,0,0.3); }
+  .gate-logo { font-size: 28px; font-weight: 700; color: var(--balpa-blue); margin-bottom: 4px; letter-spacing: 1px; }
+  .gate-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
+  .gate-box label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; text-align: left; }
+  .gate-box input { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 15px; outline: none; margin-bottom: 14px; }
+  .gate-box input:focus { border-color: var(--balpa-accent); box-shadow: 0 0 0 3px rgba(0,102,204,0.12); }
+  .gate-btn { width: 100%; padding: 12px; background: var(--balpa-blue); color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .gate-btn:hover { background: var(--balpa-accent); }
+  .gate-error { font-size: 13px; color: #c00; margin-top: 10px; min-height: 18px; }
+  .gate.hidden { display: none; }
+
   @media (max-width: 700px) {
     .container { padding: 10px; }
     .header { flex-direction: column; align-items: flex-start; gap: 8px; }
@@ -151,6 +164,17 @@
 </style>
 </head>
 <body>
+
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <div class="gate-logo">BALPA</div>
+    <div class="gate-sub">easyJet Member Search &mdash; Authorised Access Only</div>
+    <label for="gatePass">Password</label>
+    <input type="password" id="gatePass" placeholder="Enter password" autocomplete="current-password">
+    <button class="gate-btn" onclick="checkGate()">Sign In</button>
+    <div class="gate-error" id="gateError"></div>
+  </div>
+</div>
 
 <div class="header">
   <h1>BALPA easyJet &mdash; Member Search</h1>
@@ -250,6 +274,32 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// Password gate
+(function() {
+  if (sessionStorage.getItem('balpa_auth') === '1') {
+    document.getElementById('gate').classList.add('hidden');
+  } else {
+    // Prevent autoLoad running until authenticated
+    window._gated = true;
+  }
+  document.getElementById('gatePass').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') checkGate();
+  });
+})();
+
+function checkGate() {
+  const pw = document.getElementById('gatePass').value;
+  if (pw === 'BALPA2026') {
+    sessionStorage.setItem('balpa_auth', '1');
+    document.getElementById('gate').classList.add('hidden');
+    if (window._gated) { window._gated = false; autoLoad(); }
+  } else {
+    document.getElementById('gateError').textContent = 'Incorrect password — please try again.';
+    document.getElementById('gatePass').value = '';
+    document.getElementById('gatePass').focus();
+  }
+}
+
 let allData = [], filteredData = [], currentPage = 1, sortCol = null, sortAsc = true, selectedMember = null;
 const PAGE_SIZE = 50;
 // Use the GitHub API download URL — this bypasses the CDN cache that raw.githubusercontent.com uses
@@ -261,7 +311,7 @@ const COLS = [
   {key:'Category',label:'Category'},{key:'Sex',label:'Sex'}
 ];
 
-window.addEventListener('load', autoLoad);
+window.addEventListener('load', function() { if (!window._gated) autoLoad(); });
 
 async function fetchFromGitHub() {
   // Fetch via GitHub API — returns JSON with base64-encoded content
