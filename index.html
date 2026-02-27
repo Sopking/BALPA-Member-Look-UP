@@ -16,13 +16,11 @@
     --text: #1a1a2e;
     --text-muted: #667085;
     --success: #12b76a;
+    --warning: #f79009;
     --radius: 8px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg); color: var(--text); min-height: 100vh;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
   .header {
     background: var(--balpa-blue); color: white;
@@ -30,123 +28,60 @@
     justify-content: space-between; flex-wrap: wrap; gap: 12px;
   }
   .header h1 { font-size: 20px; font-weight: 600; letter-spacing: 0.5px; }
+  .header-right { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
   .header-info { font-size: 13px; opacity: 0.85; display: flex; gap: 16px; align-items: center; }
-  .status-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    display: inline-block; margin-right: 4px;
-  }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
   .status-dot.loaded { background: var(--success); }
+  .status-dot.loading { background: var(--warning); animation: pulse 1s infinite; }
   .status-dot.empty { background: #f79009; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+  .admin-link { font-size: 12px; color: rgba(255,255,255,0.6); text-decoration: none; border: 1px solid rgba(255,255,255,0.3); padding: 4px 10px; border-radius: 4px; }
+  .admin-link:hover { color: white; border-color: white; }
 
   .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
 
-  /* Upload prompt */
-  .upload-prompt {
-    background: var(--white); border: 2px dashed var(--border);
-    border-radius: var(--radius); padding: 48px 32px;
-    text-align: center; margin-bottom: 20px;
-    transition: border-color 0.2s, background 0.2s;
-  }
-  .upload-prompt:hover { border-color: var(--balpa-accent); }
-  .upload-prompt.dragover {
-    border-color: var(--balpa-accent); background: var(--balpa-light);
-  }
+  .upload-prompt { background: var(--white); border: 2px dashed var(--border); border-radius: var(--radius); padding: 48px 32px; text-align: center; margin-bottom: 20px; }
+  .upload-prompt.dragover { border-color: var(--balpa-accent); background: var(--balpa-light); }
   .upload-prompt.hidden { display: none; }
-  .upload-icon {
-    width: 48px; height: 48px; margin: 0 auto 16px;
-    background: var(--balpa-light); border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px; color: var(--balpa-accent);
-  }
+  .upload-icon { width: 48px; height: 48px; margin: 0 auto 16px; background: var(--balpa-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--balpa-accent); }
   .upload-prompt h2 { font-size: 18px; margin-bottom: 8px; color: var(--balpa-blue); }
   .upload-prompt p { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
-  .upload-btn {
-    display: inline-block; padding: 12px 28px;
-    background: var(--balpa-accent); color: white;
-    border: none; border-radius: 6px; font-size: 15px;
-    font-weight: 500; cursor: pointer; transition: opacity 0.2s;
-  }
+  .upload-btn { display: inline-block; padding: 12px 28px; background: var(--balpa-accent); color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: 500; cursor: pointer; }
   .upload-btn:hover { opacity: 0.9; }
-  .upload-prompt .hint {
-    font-size: 12px; color: var(--text-muted); margin-top: 12px;
-  }
+  .upload-prompt .hint { font-size: 12px; color: var(--text-muted); margin-top: 12px; }
   .upload-prompt input[type="file"] { display: none; }
+  .auto-loading-bar { background: var(--balpa-light); border-radius: 6px; padding: 10px 16px; margin-bottom: 16px; font-size: 13px; color: var(--balpa-accent); display: flex; align-items: center; gap: 10px; justify-content: center; }
+  .mini-spinner { width: 14px; height: 14px; border: 2px solid var(--balpa-light); border-top-color: var(--balpa-accent); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .auto-loading-bar.hidden { display: none; }
 
-  /* Loaded banner */
-  .loaded-banner {
-    background: #ecfdf3; border: 1px solid var(--success);
-    border-radius: var(--radius); padding: 12px 20px;
-    margin-bottom: 20px; display: none;
-    align-items: center; justify-content: space-between;
-  }
+  .loaded-banner { background: #ecfdf3; border: 1px solid var(--success); border-radius: var(--radius); padding: 12px 20px; margin-bottom: 20px; display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
   .loaded-banner.visible { display: flex; }
   .loaded-banner h3 { font-size: 14px; color: #067647; }
-  .loaded-banner .change-btn {
-    font-size: 12px; color: var(--balpa-accent); background: none;
-    border: 1px solid var(--balpa-accent); border-radius: 4px;
-    padding: 4px 10px; cursor: pointer;
-  }
-  .loaded-banner .change-btn:hover { background: var(--balpa-light); }
+  .loaded-banner .change-btn { font-size: 12px; color: var(--balpa-accent); background: none; border: 1px solid var(--balpa-accent); border-radius: 4px; padding: 4px 10px; cursor: pointer; }
 
-  /* Search and filters */
-  .search-bar {
-    background: var(--white); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 16px 20px;
-    margin-bottom: 16px; display: none;
-  }
+  .search-bar { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
   .search-bar.visible { display: block; }
   .search-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
   .search-field { flex: 2; min-width: 200px; }
   .filter-field { flex: 1; min-width: 140px; }
-  .search-field label, .filter-field label {
-    display: block; font-size: 12px; font-weight: 500;
-    color: var(--text-muted); margin-bottom: 4px;
-    text-transform: uppercase; letter-spacing: 0.5px;
-  }
-  .search-field input {
-    width: 100%; padding: 10px 14px;
-    border: 1px solid var(--border); border-radius: 6px;
-    font-size: 15px; outline: none; transition: border-color 0.2s;
-  }
-  .search-field input:focus {
-    border-color: var(--balpa-accent);
-    box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
-  }
-  .filter-field select {
-    width: 100%; padding: 10px 12px;
-    border: 1px solid var(--border); border-radius: 6px;
-    font-size: 14px; background: white; cursor: pointer; outline: none;
-  }
-  .filter-field select:focus { border-color: var(--balpa-accent); }
+  .search-field label, .filter-field label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .search-field input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 15px; outline: none; }
+  .search-field input:focus { border-color: var(--balpa-accent); box-shadow: 0 0 0 3px rgba(0,102,204,0.1); }
+  .filter-field select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; background: white; cursor: pointer; outline: none; }
 
-  .results-info {
-    display: none; justify-content: space-between;
-    align-items: center; margin-bottom: 10px; padding: 0 4px;
-  }
+  .results-info { display: none; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 4px; }
   .results-info.visible { display: flex; }
   .results-info span { font-size: 13px; color: var(--text-muted); }
   .results-info .count { font-weight: 600; color: var(--text); }
-  .clear-btn {
-    font-size: 13px; color: var(--balpa-accent);
-    background: none; border: none; cursor: pointer; text-decoration: underline;
-  }
+  .clear-btn { font-size: 13px; color: var(--balpa-accent); background: none; border: none; cursor: pointer; text-decoration: underline; }
 
-  .table-wrap {
-    background: var(--white); border: 1px solid var(--border);
-    border-radius: var(--radius); overflow: hidden; display: none;
-  }
+  .table-wrap { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; display: none; }
   .table-wrap.visible { display: block; }
   .table-scroll { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  thead {
-    background: var(--balpa-blue); color: white;
-    position: sticky; top: 0; z-index: 2;
-  }
-  th {
-    padding: 10px 14px; text-align: left; font-weight: 500;
-    font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
-    cursor: pointer; white-space: nowrap; user-select: none;
-  }
+  thead { background: var(--balpa-blue); color: white; position: sticky; top: 0; z-index: 2; }
+  th { padding: 10px 14px; text-align: left; font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; white-space: nowrap; user-select: none; }
   th:hover { background: rgba(255,255,255,0.1); }
   th .sort-arrow { margin-left: 4px; opacity: 0.5; font-size: 10px; }
   th.sorted .sort-arrow { opacity: 1; }
@@ -154,80 +89,41 @@
   tr:hover td { background: var(--balpa-light); }
   td.match-highlight { font-weight: 600; color: var(--balpa-blue); }
 
-  .copy-btn {
-    padding: 4px 10px; background: var(--balpa-light);
-    border: 1px solid var(--border); border-radius: 4px;
-    font-size: 12px; cursor: pointer; color: var(--balpa-blue);
-    white-space: nowrap; transition: all 0.15s;
-  }
+  .copy-btn { padding: 4px 10px; background: var(--balpa-light); border: 1px solid var(--border); border-radius: 4px; font-size: 12px; cursor: pointer; color: var(--balpa-blue); white-space: nowrap; }
   .copy-btn:hover { background: var(--balpa-accent); color: white; border-color: var(--balpa-accent); }
   .copy-btn.copied { background: var(--success); color: white; border-color: var(--success); }
 
-  .pagination {
-    display: none; justify-content: center;
-    align-items: center; gap: 8px; padding: 16px;
-  }
+  .pagination { display: none; justify-content: center; align-items: center; gap: 8px; padding: 16px; }
   .pagination.visible { display: flex; }
-  .pagination button {
-    padding: 6px 14px; border: 1px solid var(--border);
-    border-radius: 6px; background: white; cursor: pointer;
-    font-size: 13px; color: var(--text);
-  }
+  .pagination button { padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px; background: white; cursor: pointer; font-size: 13px; }
   .pagination button:hover:not(:disabled) { background: var(--balpa-light); border-color: var(--balpa-accent); }
   .pagination button:disabled { opacity: 0.4; cursor: default; }
   .pagination .page-info { font-size: 13px; color: var(--text-muted); padding: 0 8px; }
 
-  .overlay {
-    display: none; position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.4); z-index: 100;
-    justify-content: center; align-items: center; padding: 20px;
-  }
+  .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
   .overlay.visible { display: flex; }
-  .member-card {
-    background: white; border-radius: 12px;
-    width: 100%; max-width: 480px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden;
-  }
+  .member-card { background: white; border-radius: 12px; width: 100%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden; }
   .card-header { background: var(--balpa-blue); color: white; padding: 20px 24px; }
   .card-header h3 { font-size: 18px; margin-bottom: 4px; }
   .card-header p { font-size: 13px; opacity: 0.8; }
   .card-body { padding: 20px 24px; }
-  .card-row {
-    display: flex; justify-content: space-between;
-    padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px;
-  }
+  .card-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
   .card-row:last-child { border: none; }
   .card-row .label { color: var(--text-muted); font-weight: 500; }
-  .card-row .value { font-weight: 600; color: var(--text); text-align: right; }
-  .card-actions {
-    padding: 16px 24px; border-top: 1px solid #f0f0f0;
-    display: flex; gap: 10px;
-  }
-  .card-actions button {
-    flex: 1; padding: 10px; border-radius: 6px;
-    font-size: 14px; cursor: pointer; font-weight: 500;
-  }
+  .card-row .value { font-weight: 600; color: var(--text); text-align: right; max-width: 60%; }
+  .card-actions { padding: 16px 24px; border-top: 1px solid #f0f0f0; display: flex; gap: 10px; }
+  .card-actions button { flex: 1; padding: 10px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; }
   .btn-copy-all { background: var(--balpa-accent); color: white; border: none; }
   .btn-copy-all:hover { opacity: 0.9; }
   .btn-close { background: white; color: var(--text); border: 1px solid var(--border); }
-  .btn-close:hover { background: var(--bg); }
 
-  .toast {
-    position: fixed; bottom: 24px; right: 24px;
-    background: #333; color: white; padding: 10px 20px;
-    border-radius: 8px; font-size: 14px; z-index: 200;
-    opacity: 0; transform: translateY(10px);
-    transition: all 0.3s; pointer-events: none;
-  }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: #333; color: white; padding: 10px 20px; border-radius: 8px; font-size: 14px; z-index: 200; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
   .toast.show { opacity: 1; transform: translateY(0); }
 
   @media (max-width: 768px) {
     .container { padding: 12px; }
     .search-row { flex-direction: column; }
     .header { flex-direction: column; align-items: flex-start; }
-    .header h1 { font-size: 17px; }
-    .upload-prompt { padding: 32px 20px; }
   }
 </style>
 </head>
@@ -235,36 +131,38 @@
 
 <div class="header">
   <h1>BALPA easyJet &mdash; Member Search</h1>
-  <div class="header-info">
-    <span><span class="status-dot empty" id="statusDot"></span> <span id="statusText">No data loaded</span></span>
-    <span id="memberCount"></span>
+  <div class="header-right">
+    <div class="header-info">
+      <span><span class="status-dot loading" id="statusDot"></span> <span id="statusText">Loading data...</span></span>
+      <span id="memberCount"></span>
+    </div>
+    <a href="upload.html" class="admin-link">&#8593; Update Data</a>
   </div>
 </div>
 
 <div class="container">
 
-  <!-- Upload prompt -->
   <div class="upload-prompt" id="uploadPrompt">
+    <div class="auto-loading-bar" id="autoLoadingBar">
+      <div class="mini-spinner"></div>
+      Trying to load latest data automatically&hellip;
+    </div>
     <div class="upload-icon">&#128269;</div>
     <h2>Load Member Data</h2>
     <p>Select the latest BALPA DATA spreadsheet to get started</p>
-    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-      Choose Spreadsheet
-    </button>
+    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Choose Spreadsheet</button>
     <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
     <p class="hint">Or drag and drop the .xlsx file anywhere on this page</p>
   </div>
 
-  <!-- Loaded banner -->
   <div class="loaded-banner" id="loadedBanner">
     <h3 id="loadedMsg">&#10003; Data loaded</h3>
     <button class="change-btn" onclick="document.getElementById('fileInput2').click()">
       Load different file
-      <input type="file" id="fileInput2" accept=".xlsx,.xls,.csv" style="display:none">
+      <input type="file" id="fileInput2" accept=".xlsx,.xls,.csv" style="display:none;">
     </button>
   </div>
 
-  <!-- Search bar -->
   <div class="search-bar" id="searchBar">
     <div class="search-row">
       <div class="search-field">
@@ -307,13 +205,9 @@
   </div>
 </div>
 
-<!-- Member detail overlay -->
 <div class="overlay" id="overlay" onclick="if(event.target===this)closeCard()">
   <div class="member-card">
-    <div class="card-header">
-      <h3 id="cardName"></h3>
-      <p id="cardSub"></p>
-    </div>
+    <div class="card-header"><h3 id="cardName"></h3><p id="cardSub"></p></div>
     <div class="card-body" id="cardBody"></div>
     <div class="card-actions">
       <button class="btn-copy-all" onclick="copyMemberDetails()">Copy Details</button>
@@ -325,319 +219,162 @@
 <div class="toast" id="toast"></div>
 
 <script>
-let allData = [];
-let filteredData = [];
-let currentPage = 1;
+let allData = [], filteredData = [], currentPage = 1, sortCol = null, sortAsc = true, selectedMember = null;
 const PAGE_SIZE = 50;
-let sortCol = null;
-let sortAsc = true;
-let selectedMember = null;
-
+const GITHUB_RAW_URL = 'https://raw.githubusercontent.com/Sopking/BALPA-Member-Look-UP/main/BALPA%20DATA.xlsx';
 const COLS = [
-  { key: 'StaffNo',   label: 'Staff No' },
-  { key: 'Surname',   label: 'Surname' },
-  { key: 'Forenames', label: 'Forenames' },
-  { key: 'Rank',      label: 'Rank' },
-  { key: 'Base',      label: 'Base' },
-  { key: 'MemberNo',  label: 'Member No' },
-  { key: 'Category',  label: 'Category' },
-  { key: 'Sex',       label: 'Sex' }
+  {key:'StaffNo',label:'Staff No'},{key:'Surname',label:'Surname'},{key:'Forenames',label:'Forenames'},
+  {key:'Rank',label:'Rank'},{key:'Base',label:'Base'},{key:'MemberNo',label:'Member No'},
+  {key:'Category',label:'Category'},{key:'Sex',label:'Sex'}
 ];
 
-// ─── File handling ───
-document.getElementById('fileInput').addEventListener('change', e => {
-  if (e.target.files.length) processFile(e.target.files[0]);
-});
-document.getElementById('fileInput2').addEventListener('change', e => {
-  if (e.target.files.length) processFile(e.target.files[0]);
-});
+window.addEventListener('load', autoLoad);
 
-// Drag and drop on the whole page
-document.body.addEventListener('dragover', e => {
-  e.preventDefault();
-  document.getElementById('uploadPrompt').classList.add('dragover');
-});
-document.body.addEventListener('dragleave', e => {
-  if (!e.relatedTarget || e.relatedTarget === document.documentElement) {
-    document.getElementById('uploadPrompt').classList.remove('dragover');
+async function autoLoad() {
+  // Show upload prompt immediately — auto-load runs in background
+  document.getElementById('statusDot').className = 'status-dot loading';
+  document.getElementById('statusText').textContent = 'Loading…';
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+    const r = await fetch(GITHUB_RAW_URL + '?t=' + Date.now(), { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    parseWorkbook(await r.arrayBuffer(), 'latest data');
+  } catch(e) {
+    console.warn('Auto-load failed:', e.message);
+    document.getElementById('autoLoadingBar').classList.add('hidden');
+    document.getElementById('statusDot').className = 'status-dot empty';
+    document.getElementById('statusText').textContent = 'No data loaded';
   }
-});
-document.body.addEventListener('drop', e => {
-  e.preventDefault();
-  document.getElementById('uploadPrompt').classList.remove('dragover');
-  if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]);
-});
+}
 
-function processFile(file) {
-  if (!file.name.match(/\.(xlsx|xls|csv)$/i)) {
-    showToast('Please select an Excel (.xlsx) or CSV file');
-    return;
-  }
+document.getElementById('fileInput').addEventListener('change', e => { if(e.target.files.length) readFile(e.target.files[0]); });
+document.getElementById('fileInput2').addEventListener('change', e => { if(e.target.files.length) readFile(e.target.files[0]); });
+document.body.addEventListener('dragover', e => { e.preventDefault(); document.getElementById('uploadPrompt').classList.add('dragover'); });
+document.body.addEventListener('dragleave', e => { if(!e.relatedTarget||e.relatedTarget===document.documentElement) document.getElementById('uploadPrompt').classList.remove('dragover'); });
+document.body.addEventListener('drop', e => { e.preventDefault(); document.getElementById('uploadPrompt').classList.remove('dragover'); if(e.dataTransfer.files.length) readFile(e.dataTransfer.files[0]); });
 
+function readFile(file) {
   const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const wb = XLSX.read(e.target.result, { type: 'array' });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
-
-      allData = json.map(row => {
-        const mapped = {};
-        COLS.forEach(col => {
-          let val = row[col.key];
-          if (val === undefined) {
-            const found = Object.keys(row).find(k => k.toLowerCase().trim() === col.key.toLowerCase());
-            val = found ? row[found] : '';
-          }
-          mapped[col.key] = String(val).trim();
-        });
-        return mapped;
-      });
-
-      // Check for Notes column
-      const hasNotes = Object.keys(json[0] || {}).some(k => k.toLowerCase() === 'notes');
-      if (hasNotes) {
-        json.forEach((row, i) => {
-          const notesKey = Object.keys(row).find(k => k.toLowerCase() === 'notes');
-          if (notesKey && allData[i]) allData[i].Notes = String(row[notesKey] || '').trim();
-        });
-      }
-
-      onDataLoaded(file.name);
-    } catch (err) {
-      showToast('Error reading file: ' + err.message);
-    }
-  };
+  reader.onload = e => parseWorkbook(e.target.result, file.name);
   reader.readAsArrayBuffer(file);
 }
 
+function parseWorkbook(buffer, sourceName) {
+  try {
+    const wb = XLSX.read(buffer, {type:'array'});
+    const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:''});
+    allData = json.map(row => {
+      const m = {};
+      COLS.forEach(col => {
+        let v = row[col.key];
+        if(v===undefined) { const k=Object.keys(row).find(k=>k.toLowerCase().trim()===col.key.toLowerCase()); v=k?row[k]:''; }
+        m[col.key] = String(v).trim();
+      });
+      const nk = Object.keys(row).find(k=>k.toLowerCase()==='notes');
+      if(nk) m.Notes = String(row[nk]||'').trim();
+      return m;
+    });
+    onDataLoaded(sourceName);
+  } catch(err) { showToast('Error reading file: '+err.message); }
+}
+
 function onDataLoaded(source) {
-  // Show loaded state
   document.getElementById('uploadPrompt').classList.add('hidden');
   document.getElementById('loadedBanner').classList.add('visible');
-  document.getElementById('loadedMsg').innerHTML =
-    '&#10003; ' + allData.length + ' members loaded from ' + source;
-
+  document.getElementById('loadedMsg').innerHTML = '&#10003; '+allData.length.toLocaleString()+' members loaded \u2014 '+source;
   document.getElementById('statusDot').className = 'status-dot loaded';
   document.getElementById('statusText').textContent = 'Data loaded';
-  document.getElementById('memberCount').textContent = allData.length + ' members';
-
-  populateFilter('filterRank', 'Rank', 'All Ranks');
-  populateFilter('filterBase', 'Base', 'All Bases');
-  populateFilter('filterCategory', 'Category', 'All Categories');
-
-  document.getElementById('searchBar').classList.add('visible');
-  document.getElementById('resultsInfo').classList.add('visible');
-  document.getElementById('tableWrap').classList.add('visible');
-  document.getElementById('pagination').classList.add('visible');
-
-  buildTableHead();
-  applyFilters();
+  document.getElementById('memberCount').textContent = allData.length.toLocaleString()+' members';
+  populateFilter('filterRank','Rank','All Ranks');
+  populateFilter('filterBase','Base','All Bases');
+  populateFilter('filterCategory','Category','All Categories');
+  ['searchBar','resultsInfo','tableWrap','pagination'].forEach(id => document.getElementById(id).classList.add('visible'));
+  buildTableHead(); applyFilters();
   document.getElementById('searchInput').focus();
 }
 
-function populateFilter(selectId, key, allLabel) {
-  const sel = document.getElementById(selectId);
-  const vals = [...new Set(allData.map(r => r[key]).filter(Boolean))].sort();
-  sel.innerHTML = '<option value="">' + allLabel + '</option>';
-  vals.forEach(v => {
-    const opt = document.createElement('option');
-    opt.value = v; opt.textContent = v;
-    sel.appendChild(opt);
-  });
+function populateFilter(id, key, label) {
+  const sel = document.getElementById(id);
+  const vals = [...new Set(allData.map(r=>r[key]).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">'+label+'</option>';
+  vals.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
 }
 
 function buildTableHead() {
-  const tr = document.getElementById('tableHead');
-  tr.innerHTML = '';
-  COLS.forEach((col, i) => {
-    const th = document.createElement('th');
-    th.innerHTML = col.label + ' <span class="sort-arrow">&#9650;</span>';
-    th.onclick = () => toggleSort(i);
-    tr.appendChild(th);
-  });
-  const th = document.createElement('th');
-  th.textContent = '';
-  th.style.cursor = 'default';
-  tr.appendChild(th);
+  const tr = document.getElementById('tableHead'); tr.innerHTML='';
+  COLS.forEach((col,i) => { const th=document.createElement('th'); th.innerHTML=col.label+' <span class="sort-arrow">&#9650;</span>'; th.onclick=()=>toggleSort(i); tr.appendChild(th); });
+  const th=document.createElement('th'); th.style.cursor='default'; tr.appendChild(th);
 }
 
-// ─── Search & filter ───
 document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 150));
-document.getElementById('filterRank').addEventListener('change', applyFilters);
-document.getElementById('filterBase').addEventListener('change', applyFilters);
-document.getElementById('filterCategory').addEventListener('change', applyFilters);
+['filterRank','filterBase','filterCategory'].forEach(id => document.getElementById(id).addEventListener('change', applyFilters));
 
 function applyFilters() {
-  const q = document.getElementById('searchInput').value.toLowerCase().trim();
-  const rank = document.getElementById('filterRank').value;
-  const base = document.getElementById('filterBase').value;
-  const cat = document.getElementById('filterCategory').value;
-
+  const q=document.getElementById('searchInput').value.toLowerCase().trim();
+  const rank=document.getElementById('filterRank').value, base=document.getElementById('filterBase').value, cat=document.getElementById('filterCategory').value;
   filteredData = allData.filter(row => {
-    if (rank && row.Rank !== rank) return false;
-    if (base && row.Base !== base) return false;
-    if (cat && row.Category !== cat) return false;
-    if (q) {
-      const searchable = (row.StaffNo + ' ' + row.Surname + ' ' + row.Forenames + ' ' + row.MemberNo).toLowerCase();
-      const terms = q.split(/\s+/);
-      if (!terms.every(t => searchable.includes(t))) return false;
-    }
+    if(rank&&row.Rank!==rank) return false;
+    if(base&&row.Base!==base) return false;
+    if(cat&&row.Category!==cat) return false;
+    if(q) { const s=(row.StaffNo+' '+row.Surname+' '+row.Forenames+' '+row.MemberNo).toLowerCase(); if(!q.split(/\s+/).every(t=>s.includes(t))) return false; }
     return true;
   });
-
-  if (sortCol !== null) {
-    const key = COLS[sortCol].key;
-    filteredData.sort((a, b) => {
-      const va = a[key].toLowerCase(), vb = b[key].toLowerCase();
-      if (va < vb) return sortAsc ? -1 : 1;
-      if (va > vb) return sortAsc ? 1 : -1;
-      return 0;
-    });
-  }
-
-  currentPage = 1;
-  renderTable();
+  if(sortCol!==null) { const k=COLS[sortCol].key; filteredData.sort((a,b)=>{const va=a[k].toLowerCase(),vb=b[k].toLowerCase();return sortAsc?(va<vb?-1:va>vb?1:0):(va<vb?1:va>vb?-1:0);}); }
+  currentPage=1; renderTable();
 }
 
-function clearFilters() {
-  document.getElementById('searchInput').value = '';
-  document.getElementById('filterRank').value = '';
-  document.getElementById('filterBase').value = '';
-  document.getElementById('filterCategory').value = '';
-  sortCol = null; sortAsc = true;
-  applyFilters();
-}
+function clearFilters() { document.getElementById('searchInput').value=''; ['filterRank','filterBase','filterCategory'].forEach(id=>document.getElementById(id).value=''); sortCol=null; sortAsc=true; applyFilters(); }
 
-function toggleSort(colIdx) {
-  if (sortCol === colIdx) { sortAsc = !sortAsc; }
-  else { sortCol = colIdx; sortAsc = true; }
-  document.querySelectorAll('#tableHead th').forEach((th, i) => {
-    th.classList.toggle('sorted', i === sortCol);
-    const arrow = th.querySelector('.sort-arrow');
-    if (arrow) arrow.innerHTML = (i === sortCol && !sortAsc) ? '&#9660;' : '&#9650;';
-  });
+function toggleSort(i) {
+  sortAsc = (sortCol===i) ? !sortAsc : true; sortCol=i;
+  document.querySelectorAll('#tableHead th').forEach((th,j) => { th.classList.toggle('sorted',j===i); const a=th.querySelector('.sort-arrow'); if(a) a.innerHTML=(j===i&&!sortAsc)?'&#9660;':'&#9650;'; });
   applyFilters();
 }
 
 function renderTable() {
-  const tbody = document.getElementById('tableBody');
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const page = filteredData.slice(start, start + PAGE_SIZE);
-  const q = document.getElementById('searchInput').value.toLowerCase().trim();
-
-  document.getElementById('resultCount').textContent = filteredData.length;
-  tbody.innerHTML = '';
-
+  const tbody=document.getElementById('tableBody'), q=document.getElementById('searchInput').value.toLowerCase().trim();
+  const start=(currentPage-1)*PAGE_SIZE, page=filteredData.slice(start,start+PAGE_SIZE);
+  document.getElementById('resultCount').textContent=filteredData.length.toLocaleString();
+  tbody.innerHTML='';
   page.forEach(row => {
-    const tr = document.createElement('tr');
-    tr.style.cursor = 'pointer';
-    tr.onclick = e => { if (e.target.classList.contains('copy-btn')) return; openCard(row); };
-
-    COLS.forEach(col => {
-      const td = document.createElement('td');
-      td.textContent = row[col.key];
-      if (q && row[col.key].toLowerCase().includes(q)) td.classList.add('match-highlight');
-      tr.appendChild(td);
-    });
-
-    const td = document.createElement('td');
-    const btn = document.createElement('button');
-    btn.className = 'copy-btn';
-    btn.textContent = 'Copy';
-    btn.onclick = e => { e.stopPropagation(); copyRowText(row, btn); };
-    td.appendChild(btn);
-    tr.appendChild(td);
-    tbody.appendChild(tr);
+    const tr=document.createElement('tr'); tr.style.cursor='pointer'; tr.onclick=e=>{if(e.target.classList.contains('copy-btn'))return;openCard(row);};
+    COLS.forEach(col => { const td=document.createElement('td'); td.textContent=row[col.key]; if(q&&row[col.key].toLowerCase().includes(q))td.classList.add('match-highlight'); tr.appendChild(td); });
+    const td=document.createElement('td'), btn=document.createElement('button'); btn.className='copy-btn'; btn.textContent='Copy'; btn.onclick=e=>{e.stopPropagation();copyRowText(row,btn);}; td.appendChild(btn); tr.appendChild(td); tbody.appendChild(tr);
   });
-
-  const totalPages = Math.max(1, Math.ceil(filteredData.length / PAGE_SIZE));
-  document.getElementById('pageInfo').textContent = 'Page ' + currentPage + ' of ' + totalPages;
-  document.getElementById('prevBtn').disabled = currentPage <= 1;
-  document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+  const total=Math.max(1,Math.ceil(filteredData.length/PAGE_SIZE));
+  document.getElementById('pageInfo').textContent='Page '+currentPage+' of '+total;
+  document.getElementById('prevBtn').disabled=currentPage<=1;
+  document.getElementById('nextBtn').disabled=currentPage>=total;
 }
 
-function changePage(dir) {
-  const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
-  currentPage = Math.max(1, Math.min(totalPages, currentPage + dir));
-  renderTable();
-  document.getElementById('tableWrap').scrollIntoView({ behavior: 'smooth' });
-}
+function changePage(dir) { currentPage=Math.max(1,Math.min(Math.ceil(filteredData.length/PAGE_SIZE),currentPage+dir)); renderTable(); document.getElementById('tableWrap').scrollIntoView({behavior:'smooth'}); }
 
-// ─── Member card ───
 function openCard(row) {
-  selectedMember = row;
-  document.getElementById('cardName').textContent = row.Forenames + ' ' + row.Surname;
-  document.getElementById('cardSub').textContent = row.Rank + ' \u00b7 ' + row.Base + ' \u00b7 ' + row.Category;
-
-  const body = document.getElementById('cardBody');
-  body.innerHTML = '';
-  const fields = [
-    ['Staff Number', row.StaffNo],
-    ['Member Number', row.MemberNo],
-    ['Rank', row.Rank],
-    ['Base', row.Base],
-    ['Category', row.Category],
-    ['Sex', row.Sex]
-  ];
-  if (row.Notes) fields.push(['Notes', row.Notes]);
-
-  fields.forEach(([label, value]) => {
-    const div = document.createElement('div');
-    div.className = 'card-row';
-    div.innerHTML = '<span class="label">' + label + '</span><span class="value">' + (value || '\u2014') + '</span>';
-    body.appendChild(div);
-  });
+  selectedMember=row;
+  document.getElementById('cardName').textContent=row.Forenames+' '+row.Surname;
+  document.getElementById('cardSub').textContent=row.Rank+' · '+row.Base+' · '+row.Category;
+  const body=document.getElementById('cardBody'); body.innerHTML='';
+  [['Staff Number',row.StaffNo],['Member Number',row.MemberNo],['Rank',row.Rank],['Base',row.Base],['Category',row.Category],['Sex',row.Sex],...(row.Notes?[['Notes',row.Notes]]:[])].forEach(([l,v])=>{const d=document.createElement('div');d.className='card-row';d.innerHTML='<span class="label">'+l+'</span><span class="value">'+(v||'—')+'</span>';body.appendChild(d);});
   document.getElementById('overlay').classList.add('visible');
 }
 
-function closeCard() {
-  document.getElementById('overlay').classList.remove('visible');
-  selectedMember = null;
-}
+function closeCard() { document.getElementById('overlay').classList.remove('visible'); selectedMember=null; }
 
 function copyMemberDetails() {
-  if (!selectedMember) return;
-  const r = selectedMember;
-  const text = [
-    r.Forenames + ' ' + r.Surname,
-    'Staff No: ' + r.StaffNo,
-    'Member No: ' + r.MemberNo,
-    'Rank: ' + r.Rank,
-    'Base: ' + r.Base,
-    'Category: ' + r.Category,
-    r.Notes ? 'Notes: ' + r.Notes : ''
-  ].filter(Boolean).join('\n');
-  navigator.clipboard.writeText(text).then(() => showToast('Member details copied'));
+  if(!selectedMember) return;
+  const r=selectedMember;
+  navigator.clipboard.writeText([r.Forenames+' '+r.Surname,'Staff No: '+r.StaffNo,'Member No: '+r.MemberNo,'Rank: '+r.Rank,'Base: '+r.Base,'Category: '+r.Category,...(r.Notes?['Notes: '+r.Notes]:[])].join('\n')).then(()=>showToast('Member details copied'));
 }
 
-function copyRowText(row, btn) {
-  const text = row.Forenames + ' ' + row.Surname + ' | ' + row.StaffNo + ' | ' + row.Rank + ' | ' + row.Base + ' | ' + row.MemberNo;
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = 'Copied!';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
-  });
+function copyRowText(row,btn) {
+  navigator.clipboard.writeText(row.Forenames+' '+row.Surname+' | '+row.StaffNo+' | '+row.Rank+' | '+row.Base+' | '+row.MemberNo).then(()=>{btn.textContent='Copied!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},1500);});
 }
 
-// ─── Keyboard shortcuts ───
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeCard();
-  if (e.key === '/' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) {
-    e.preventDefault();
-    document.getElementById('searchInput').focus();
-  }
-});
-
-// ─── Utils ───
-function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
+document.addEventListener('keydown', e => { if(e.key==='Escape')closeCard(); if(e.key==='/'&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){e.preventDefault();document.getElementById('searchInput').focus();} });
+function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 </script>
 </body>
 </html>
