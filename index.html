@@ -58,7 +58,12 @@
   .loaded-banner { background: #ecfdf3; border: 1px solid var(--success); border-radius: var(--radius); padding: 12px 20px; margin-bottom: 20px; display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
   .loaded-banner.visible { display: flex; }
   .loaded-banner h3 { font-size: 14px; color: #067647; }
+  .loaded-banner .banner-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .loaded-banner .change-btn { font-size: 12px; color: var(--balpa-accent); background: none; border: 1px solid var(--balpa-accent); border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+  .loaded-banner .refresh-btn { font-size: 12px; color: #067647; background: none; border: 1px solid var(--success); border-radius: 4px; padding: 4px 10px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+  .loaded-banner .refresh-btn:hover { background: #d1fadf; }
+  .loaded-banner .refresh-btn.spinning .refresh-icon { display: inline-block; animation: spin 0.8s linear infinite; }
+  .loaded-timestamp { font-size: 11px; color: #667085; }
 
   .search-bar { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
   .search-bar.visible { display: block; }
@@ -156,11 +161,19 @@
   </div>
 
   <div class="loaded-banner" id="loadedBanner">
-    <h3 id="loadedMsg">&#10003; Data loaded</h3>
-    <button class="change-btn" onclick="document.getElementById('fileInput2').click()">
-      Load different file
-      <input type="file" id="fileInput2" accept=".xlsx,.xls,.csv" style="display:none;">
-    </button>
+    <div>
+      <h3 id="loadedMsg">&#10003; Data loaded</h3>
+      <span class="loaded-timestamp" id="loadedTimestamp"></span>
+    </div>
+    <div class="banner-actions">
+      <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+        <span class="refresh-icon">&#8635;</span> Refresh
+      </button>
+      <button class="change-btn" onclick="document.getElementById('fileInput2').click()">
+        Load different file
+        <input type="file" id="fileInput2" accept=".xlsx,.xls,.csv" style="display:none;">
+      </button>
+    </div>
   </div>
 
   <div class="search-bar" id="searchBar">
@@ -221,7 +234,9 @@
 <script>
 let allData = [], filteredData = [], currentPage = 1, sortCol = null, sortAsc = true, selectedMember = null;
 const PAGE_SIZE = 50;
-const GITHUB_RAW_URL = 'https://raw.githubusercontent.com/Sopking/BALPA-Member-Look-UP/main/BALPA%20DATA.xlsx';
+// Use the GitHub API download URL — this bypasses the CDN cache that raw.githubusercontent.com uses
+// The API always returns the current committed file, with no 5-minute delay
+const GITHUB_API_URL = 'https://api.github.com/repos/Sopking/BALPA-Member-Look-UP/contents/BALPA%20DATA.xlsx';
 const COLS = [
   {key:'StaffNo',label:'Staff No'},{key:'Surname',label:'Surname'},{key:'Forenames',label:'Forenames'},
   {key:'Rank',label:'Rank'},{key:'Base',label:'Base'},{key:'MemberNo',label:'Member No'},
@@ -230,23 +245,57 @@ const COLS = [
 
 window.addEventListener('load', autoLoad);
 
+async function fetchFromGitHub() {
+  // Fetch via GitHub API — returns JSON with base64-encoded content
+  // This bypasses the CDN cache so you always get the latest uploaded file immediately
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20000);
+  try {
+    const r = await fetch(GITHUB_API_URL, {
+      signal: controller.signal,
+      headers: { 'Accept': 'application/vnd.github.v3.raw' }  // raw binary response
+    });
+    clearTimeout(timeout);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.arrayBuffer();
+  } catch(e) {
+    clearTimeout(timeout);
+    throw e;
+  }
+}
+
 async function autoLoad() {
-  // Show upload prompt immediately — auto-load runs in background
   document.getElementById('statusDot').className = 'status-dot loading';
   document.getElementById('statusText').textContent = 'Loading…';
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 12000);
-    const r = await fetch(GITHUB_RAW_URL + '?t=' + Date.now(), { signal: controller.signal });
-    clearTimeout(timeout);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    parseWorkbook(await r.arrayBuffer(), 'latest data');
+    const buf = await fetchFromGitHub();
+    parseWorkbook(buf, 'latest data');
   } catch(e) {
     console.warn('Auto-load failed:', e.message);
     document.getElementById('autoLoadingBar').classList.add('hidden');
     document.getElementById('statusDot').className = 'status-dot empty';
     document.getElementById('statusText').textContent = 'No data loaded';
   }
+}
+
+async function refreshData() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  btn.disabled = true;
+  document.getElementById('statusDot').className = 'status-dot loading';
+  document.getElementById('statusText').textContent = 'Refreshing…';
+  try {
+    const buf = await fetchFromGitHub();
+    parseWorkbook(buf, 'latest data');
+    showToast('Data refreshed successfully');
+  } catch(e) {
+    showToast('Refresh failed — check your connection');
+    document.getElementById('statusDot').className = 'status-dot loaded';
+    document.getElementById('statusText').textContent = 'Data loaded';
+    console.warn('Refresh failed:', e.message);
+  }
+  btn.classList.remove('spinning');
+  btn.disabled = false;
 }
 
 document.getElementById('fileInput').addEventListener('change', e => { if(e.target.files.length) readFile(e.target.files[0]); });
@@ -371,6 +420,10 @@ function onDataLoaded(source) {
   document.getElementById('uploadPrompt').classList.add('hidden');
   document.getElementById('loadedBanner').classList.add('visible');
   document.getElementById('loadedMsg').innerHTML = '&#10003; '+allData.length.toLocaleString()+' members loaded \u2014 '+source;
+  // Show timestamp so users know how fresh the data is
+  const now = new Date();
+  const ts = now.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}) + ' on ' + now.toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('loadedTimestamp').textContent = 'Last updated: ' + ts;
   document.getElementById('statusDot').className = 'status-dot loaded';
   document.getElementById('statusText').textContent = 'Data loaded';
   document.getElementById('memberCount').textContent = allData.length.toLocaleString()+' members';
