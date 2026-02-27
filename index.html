@@ -261,23 +261,110 @@ function readFile(file) {
   reader.readAsArrayBuffer(file);
 }
 
+// Aliases for flexible column detection — add more variations here if needed
+const COL_ALIASES = {
+  StaffNo:   ['staffno','staff no','staff number','staff_no','employee no','employee number','empno','emp no','payroll no','payroll number'],
+  Surname:   ['surname','last name','lastname','family name','familyname'],
+  Forenames: ['forenames','forename','first name','firstname','given name','givenname','first names'],
+  Rank:      ['rank','grade','position','role','job title','jobtitle'],
+  Base:      ['base','home base','homebase','station','location','airport'],
+  MemberNo:  ['memberno','member no','member number','membership no','membership number','memno','mem no'],
+  Category:  ['category','cat','type','membership type','membershiptype','mem type','memtype'],
+  Sex:       ['sex','gender']
+};
+
+function detectColMap(headers) {
+  // Returns {StaffNo: 'actualHeaderName', ...} for each COLS key
+  const map = {};
+  const normalized = headers.map(h => ({orig: h, norm: String(h).toLowerCase().replace(/[\s_\-\.]+/g,'')}));
+  COLS.forEach(col => {
+    // 1. Exact match
+    let match = normalized.find(n => n.orig === col.key);
+    if (!match) {
+      // 2. Case-insensitive exact
+      match = normalized.find(n => n.norm === col.key.toLowerCase());
+    }
+    if (!match) {
+      // 3. Alias match (normalized)
+      const aliases = COL_ALIASES[col.key] || [];
+      for (const alias of aliases) {
+        const normAlias = alias.toLowerCase().replace(/[\s_\-\.]+/g,'');
+        match = normalized.find(n => n.norm === normAlias);
+        if (match) break;
+      }
+    }
+    if (!match) {
+      // 4. Contains match (partial)
+      const aliases = COL_ALIASES[col.key] || [];
+      for (const alias of aliases) {
+        const normAlias = alias.toLowerCase().replace(/[\s_\-\.]+/g,'');
+        match = normalized.find(n => n.norm.includes(normAlias) || normAlias.includes(n.norm));
+        if (match) break;
+      }
+    }
+    if (match) map[col.key] = match.orig;
+  });
+  return map;
+}
+
 function parseWorkbook(buffer, sourceName) {
   try {
     const wb = XLSX.read(buffer, {type:'array'});
-    const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:''});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json(ws, {defval:''});
+    if (!json.length) { showToast('Spreadsheet appears to be empty.'); return; }
+
+    const headers = Object.keys(json[0]);
+    const colMap = detectColMap(headers);
+    const matched = Object.keys(colMap).length;
+    const missing = COLS.map(c=>c.key).filter(k=>!colMap[k]);
+
+    console.log('Spreadsheet columns found:', headers);
+    console.log('Column mapping:', colMap);
+    if (missing.length) console.warn('Unmapped columns:', missing);
+
     allData = json.map(row => {
       const m = {};
       COLS.forEach(col => {
-        let v = row[col.key];
-        if(v===undefined) { const k=Object.keys(row).find(k=>k.toLowerCase().trim()===col.key.toLowerCase()); v=k?row[k]:''; }
-        m[col.key] = String(v).trim();
+        const actualKey = colMap[col.key];
+        m[col.key] = actualKey ? String(row[actualKey]||'').trim() : '';
       });
-      const nk = Object.keys(row).find(k=>k.toLowerCase()==='notes');
+      // Notes column
+      const nk = headers.find(h => h.toLowerCase().replace(/[\s_]+/g,'').includes('note'));
       if(nk) m.Notes = String(row[nk]||'').trim();
       return m;
     });
+
+    // Show diagnostic warning if most columns couldn't be matched
+    if (matched < 3) {
+      showColDiag(headers, colMap, missing);
+      return;
+    }
+    if (missing.length) showToast('⚠ Some columns not matched: ' + missing.join(', ') + '. Check console for details.');
     onDataLoaded(sourceName);
-  } catch(err) { showToast('Error reading file: '+err.message); }
+  } catch(err) { showToast('Error reading file: '+err.message); console.error(err); }
+}
+
+function showColDiag(headers, colMap, missing) {
+  // Show a diagnostic panel so we can see what the spreadsheet calls its columns
+  const panel = document.getElementById('colDiagPanel') || (() => {
+    const d = document.createElement('div');
+    d.id = 'colDiagPanel';
+    d.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;border:2px solid #c00;border-radius:12px;padding:24px;max-width:560px;width:92vw;z-index:9999;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-height:80vh;overflow-y:auto;';
+    document.body.appendChild(d);
+    return d;
+  })();
+  panel.innerHTML = `
+    <h3 style="color:#c00;margin-bottom:8px;">⚠ Column Names Not Recognised</h3>
+    <p style="font-size:13px;color:#555;margin-bottom:14px;">The app couldn't match the spreadsheet's column headers. Here are the <strong>actual column names</strong> found in the file — please send this list to whoever set up the app so they can fix the mapping:</p>
+    <div style="background:#f5f5f5;border-radius:6px;padding:12px;font-family:monospace;font-size:12px;line-height:1.8;word-break:break-all;">
+      ${headers.map((h,i) => `<div><strong>${i+1}.</strong> "${h}"</div>`).join('')}
+    </div>
+    <p style="font-size:12px;color:#888;margin-top:10px;">You can also open the browser console (F12 → Console) to see this list.</p>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button onclick="document.getElementById('colDiagPanel').remove()" style="padding:8px 18px;background:#003366;color:white;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Close</button>
+      <button onclick="navigator.clipboard.writeText(${JSON.stringify(headers.join(', '))}).then(()=>showToast('Column names copied!'))" style="padding:8px 18px;background:#f0f0f0;color:#333;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:14px;">Copy Column Names</button>
+    </div>`;
 }
 
 function onDataLoaded(source) {
