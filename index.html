@@ -274,12 +274,20 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// Password gate
+// Password gate — password is fetched from config.json in GitHub, falls back to default
+const CONFIG_URL = 'https://api.github.com/repos/Sopking/BALPA-Member-Look-UP/contents/config.json';
+let _gatePassword = null; // loaded from config.json
+
+// Fetch the password in the background as soon as the page loads
+fetch(CONFIG_URL, { headers: { 'Accept': 'application/vnd.github.v3.raw' } })
+  .then(r => r.ok ? r.json() : null)
+  .then(cfg => { if (cfg && cfg.password) _gatePassword = cfg.password; })
+  .catch(() => {});
+
 (function() {
   if (sessionStorage.getItem('balpa_auth') === '1') {
     document.getElementById('gate').classList.add('hidden');
   } else {
-    // Prevent autoLoad running until authenticated
     window._gated = true;
   }
   document.getElementById('gatePass').addEventListener('keydown', function(e) {
@@ -289,7 +297,8 @@
 
 function checkGate() {
   const pw = document.getElementById('gatePass').value;
-  if (pw === 'BALPA2026') {
+  const expected = _gatePassword || 'BALPA2026'; // fallback if config hasn't loaded
+  if (pw === expected) {
     sessionStorage.setItem('balpa_auth', '1');
     document.getElementById('gate').classList.add('hidden');
     if (window._gated) { window._gated = false; autoLoad(); }
