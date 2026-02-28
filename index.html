@@ -96,6 +96,21 @@
   tr.non-member { background: #fff1f1; }
   tr.non-member:hover { background: #ffe4e4; }
 
+  /* Category key panel */
+  .key-toggle { font-size: 12px; color: var(--balpa-accent); background: none; border: none; cursor: pointer; padding: 0; text-decoration: underline; margin-top: 10px; display: none; }
+  .key-toggle.visible { display: inline-block; }
+  .key-panel { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
+  .key-panel.visible { display: block; }
+  .key-panel h4 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 10px; }
+  .key-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 4px 20px; margin-bottom: 14px; }
+  .key-item { display: flex; align-items: baseline; gap: 7px; font-size: 13px; padding: 3px 0; }
+  .key-code { font-weight: 700; color: var(--balpa-blue); min-width: 42px; font-size: 12px; }
+  .key-desc { color: var(--text-muted); }
+  .key-item.non-mem .key-code { color: #b42318; }
+  .key-item.non-mem { background: #fff1f1; border-radius: 4px; padding: 3px 6px; }
+  .key-divider { grid-column: 1 / -1; border: none; border-top: 1px dashed var(--border); margin: 6px 0; }
+  @media (max-width: 700px) { .key-grid { grid-template-columns: 1fr 1fr; } }
+
   .copy-btn { padding: 4px 10px; background: var(--balpa-light); border: 1px solid var(--border); border-radius: 4px; font-size: 12px; cursor: pointer; color: var(--balpa-blue); white-space: nowrap; }
   .copy-btn:hover { background: var(--balpa-accent); color: white; border-color: var(--balpa-accent); }
   .copy-btn.copied { background: var(--success); color: white; border-color: var(--success); }
@@ -238,6 +253,33 @@
         <label>Category</label>
         <select id="filterCategory"><option value="">All Categories</option></select>
       </div>
+    </div>
+  </div>
+
+  <button class="key-toggle" id="keyToggle" onclick="toggleKey()">&#9432; Category key</button>
+
+  <div class="key-panel" id="keyPanel">
+    <h4>Member Categories</h4>
+    <div class="key-grid">
+      <div class="key-item"><span class="key-code">FR</span><span class="key-desc">Full &amp; PLC Represented</span></div>
+      <div class="key-item"><span class="key-code">FN</span><span class="key-desc">Full Non-Represented</span></div>
+      <div class="key-item"><span class="key-code">FC</span><span class="key-desc">Full Contractor</span></div>
+      <div class="key-item"><span class="key-code">AMFR</span><span class="key-desc">Full Managerial</span></div>
+      <div class="key-item"><span class="key-code">AMT</span><span class="key-desc">Full Maternity</span></div>
+      <div class="key-item"><span class="key-code">AB</span><span class="key-desc">Full B Member</span></div>
+      <div class="key-item"><span class="key-code">AT</span><span class="key-desc">Associate Trainee</span></div>
+      <div class="key-item"><span class="key-code">AUP</span><span class="key-desc">Associate Unpaid Leave</span></div>
+      <div class="key-item"><span class="key-code">AAM</span><span class="key-desc">Associate A Miscellaneous</span></div>
+      <div class="key-item"><span class="key-code">AAR</span><span class="key-desc">Associate A Retired</span></div>
+      <div class="key-item"><span class="key-code">AAO</span><span class="key-desc">Associate A Overseas</span></div>
+      <div class="key-item"><span class="key-code">AAU</span><span class="key-desc">Associate A Unemployed</span></div>
+      <div class="key-item"><span class="key-code">AAUP</span><span class="key-desc">Associate Unemployed (P)</span></div>
+      <div class="key-item"><span class="key-code">FLTS</span><span class="key-desc">Full LTS</span></div>
+      <div class="key-item"><span class="key-code">PEND</span><span class="key-desc">Application Pending</span></div>
+      <hr class="key-divider">
+      <div class="key-item non-mem"><span class="key-code">NON</span><span class="key-desc">Non Member</span></div>
+      <div class="key-item non-mem"><span class="key-code">RESN</span><span class="key-desc">Resigned</span></div>
+      <div class="key-item non-mem"><span class="key-code">TERM</span><span class="key-desc">Terminated</span></div>
     </div>
   </div>
 
@@ -516,6 +558,7 @@ function onDataLoaded(source) {
   populateFilter('filterBase','Base','All Bases');
   populateFilter('filterCategory','Category','All Categories');
   ['searchBar','resultsInfo','tableWrap','pagination'].forEach(id => document.getElementById(id).classList.add('visible'));
+  document.getElementById('keyToggle').classList.add('visible');
   buildTableHead(); applyFilters();
   document.getElementById('searchInput').focus();
 }
@@ -551,6 +594,13 @@ function applyFilters() {
 }
 
 function clearFilters() { document.getElementById('searchInput').value=''; ['filterRank','filterBase','filterCategory'].forEach(id=>document.getElementById(id).value=''); sortCol=null; sortAsc=true; applyFilters(); }
+
+function toggleKey() {
+  const panel = document.getElementById('keyPanel');
+  const btn = document.getElementById('keyToggle');
+  const open = panel.classList.toggle('visible');
+  btn.textContent = open ? '✕ Hide key' : 'ℹ Category key';
+}
 
 function toggleSort(i) {
   sortAsc = (sortCol===i) ? !sortAsc : true; sortCol=i;
