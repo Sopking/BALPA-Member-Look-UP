@@ -93,6 +93,8 @@
   td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
   tr:hover td { background: var(--balpa-light); }
   td.match-highlight { font-weight: 600; color: var(--balpa-blue); }
+  tr.non-member { background: #fff1f1; }
+  tr.non-member:hover { background: #ffe4e4; }
 
   .copy-btn { padding: 4px 10px; background: var(--balpa-light); border: 1px solid var(--border); border-radius: 4px; font-size: 12px; cursor: pointer; color: var(--balpa-blue); white-space: nowrap; }
   .copy-btn:hover { background: var(--balpa-accent); color: white; border-color: var(--balpa-accent); }
@@ -563,6 +565,7 @@ function renderTable() {
   tbody.innerHTML='';
   page.forEach(row => {
     const tr=document.createElement('tr'); tr.style.cursor='pointer'; tr.onclick=e=>{if(e.target.classList.contains('copy-btn'))return;openCard(row);};
+    if (['RESN','NON','TERM'].includes(row.Category)) tr.classList.add('non-member');
     COLS.forEach(col => { const td=document.createElement('td'); td.textContent=row[col.key]; if(q&&row[col.key].toLowerCase().includes(q))td.classList.add('match-highlight'); tr.appendChild(td); });
     const td=document.createElement('td'), btn=document.createElement('button'); btn.className='copy-btn'; btn.textContent='Copy'; btn.onclick=e=>{e.stopPropagation();copyRowText(row,btn);}; td.appendChild(btn); tr.appendChild(td); tbody.appendChild(tr);
   });
